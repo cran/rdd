@@ -32,7 +32,7 @@ plot.RD <- function(x,gran=400,bins=100,which=1,range,...) {
   }
   d<-x$frame
   
-  if(!is.null(na.action))
+  if(length(x$na.action)>0)
     d<-d[-x$na.action,]
   
   if("kernel" %in% names(x$call)) 

@@ -41,13 +41,15 @@ IKbandwidth <-function (X,Y,cutpoint=NULL,verbose=FALSE,kernel="triangular") {
   Nr<-sum(right)
   Ybarl<-mean(Y[left])
   Ybarr<-mean(Y[right])
-  fbarx<-(Nl+Nr)/(2*Nx*h1) #Why is this like so? Not so in I-K...
+  fbarx<-(Nl+Nr)/(2*Nx*h1)
   varY<-(sum((Y[left]-Ybarl)^2)+sum((Y[right]-Ybarr)^2))/(Nl+Nr)
   medXl<-median(X[left])
   medXr<-median(X[right])
   Nl<-sum(X<cutpoint)
   Nr<-sum(X>=cutpoint)
   cX<-X-cutpoint
+  if(sum(X[left]>medXl)==0 | sum(X[right]<medXr)==0)
+    stop("Insufficient data in vicinity of the cutpoint to calculate bandwidth.")
   #Model a cubic within the pilot bandwidth
   mod<-lm(Y~I(X>=cutpoint)+poly(cX,3,raw=T),subset=(X>=medXl&X<=medXr))
   m3<-6*coef(mod)[5]
@@ -58,6 +60,8 @@ IKbandwidth <-function (X,Y,cutpoint=NULL,verbose=FALSE,kernel="triangular") {
   right<-(X>=cutpoint) & (X<= (cutpoint+h2r))
   Nl<-sum(left)
   Nr<-sum(right)
+  if(Nl==0 | Nr==0)
+    stop("Insufficient data in vicinity of the cutpoint to calculate bandwidth.")
   #Estimate quadratics for curvature estimation
   mod<-lm(Y~poly(cX,2,raw=T),subset=right)
   m2r<-2*coef(mod)[3]
@@ -88,6 +92,10 @@ IKbandwidth <-function (X,Y,cutpoint=NULL,verbose=FALSE,kernel="triangular") {
   }
   #And there's our optimal bandwidth
   optbw<-ck*(2*varY/(fbarx*((m2r-m2l)^2+rr+rl)))^(1/5)*(Nx^(-1/5))
+  left<-(X>=(cutpoint-optbw)) & (X<cutpoint)
+  right<-(X>=cutpoint) & (X<= (cutpoint+optbw))
+  if(sum(left)==0 | sum(right)==0)
+    stop("Insufficient data in the calculated bandwidth.")
   names(optbw)<-NULL
   if(verbose) cat("Imbens-Kalyanamaran Optimal Bandwidth: ",sprintf("%.3f",optbw),"\n")
   return(optbw)

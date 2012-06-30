@@ -19,6 +19,7 @@
 #' \item{cutpoint}{the cutpoint used}
 #' \item{data}{a dataframe for the binning of the histogram. Columns are \code{cellmp} (the midpoints of each cell) and \code{cellval} (the normalized height of each cell)}
 #' @references McCrary, Justin. (2008) "Manipulation of the running variable in the regression discontinuity design: A density test," \emph{Journal of Econometrics}. 142(2): 698-714. \url{http://dx.doi.org/10.1016/j.jeconom.2007.05.005}
+#' @include kernelwts.R
 #' @export
 #' @author Drew Dimmery <\email{drewd@@nyu.edu}>
 #' @examples
@@ -48,7 +49,7 @@ DCdensity <- function(runvar,cutpoint,bin=NULL,bw=NULL,verbose=FALSE,plot=TRUE,e
   }
   
   if(is.null(bin)) {
-    bin <- 2*rsd*rn^(-.5)
+    bin <- 2*rsd*rn^(-1/2)
     if(verbose) cat("Using calculated bin size: ",sprintf("%.3f",bin),"\n")
   }
   
@@ -70,14 +71,14 @@ DCdensity <- function(runvar,cutpoint,bin=NULL,bw=NULL,verbose=FALSE,plot=TRUE,e
   cellmp <- seq(from=1,to=j,by=1)
   cellmp <- floor(((l + (cellmp - 1)*bin ) - cutpoint)/bin)*bin + bin/2 + cutpoint
   
-  #If no optimal bandwidth is given, calc it
+  #If no bandwidth is given, calc it
   if(is.null(bw)){
     #bin number just left of breakpoint
     leftofc <-  round((((floor((lc - cutpoint)/bin)*bin + bin/2 + cutpoint) - l)/bin) + 1) 
     #bin number just right of breakpoint
     rightofc <- round((((floor((rc - cutpoint)/bin)*bin + bin/2 + cutpoint) - l)/bin) + 1)
     if ( rightofc - leftofc != 1) {
-      stop("Error occurred in optimal bandwidth calculation")
+      stop("Error occurred in bandwidth calculation")
     }
     cellmpleft <- cellmp[1:leftofc]
     cellmpright <- cellmp[rightofc:j]
@@ -85,60 +86,60 @@ DCdensity <- function(runvar,cutpoint,bin=NULL,bw=NULL,verbose=FALSE,plot=TRUE,e
     #Estimate 4th order polynomial to the left
     P.lm <- lm(
       cellval ~ poly(cellmp,degree=4,raw=T), 
-      subset=which(cellmp<cutpoint)
+      subset=cellmp<cutpoint
     )
     mse4 <- summary(P.lm)$sigma^2
-    lcoef <- summary(P.lm)$coefficients[,1]
+    lcoef <- coef(P.lm)
     fppleft <- 2*lcoef[3] +
       6*lcoef[4]*cellmpleft + 
       12*lcoef[5]*cellmpleft*cellmpleft
-    hleft <- 3.348*(mse4*( cutpoint - l ) / sum(fppleft*fppleft))^(.2)
-    
+    hleft <- 3.348*(mse4*( cutpoint - l ) / sum(fppleft*fppleft))^(1/5)
+
     #And to the right
     P.lm <- lm(
       cellval ~ poly(cellmp,degree=4,raw=T), 
-      subset=which(cellmp>=cutpoint)
+      subset=cellmp>=cutpoint
     )
     mse4 <- summary(P.lm)$sigma^2
-    rcoef <- summary(P.lm)$coefficients[,1]
+    rcoef <- coef(P.lm)
     fppright <- 2*rcoef[3] +
       6*rcoef[4]*cellmpright +
       12*rcoef[5]*cellmpright*cellmpright
-    hright <- 3.348*(mse4*( r - cutpoint ) / sum(fppright*fppright))^(.2)
-    
+    hright <- 3.348*(mse4*( r - cutpoint ) / sum(fppright*fppright))^(1/5)
+    print(r-cutpoint)
+
     bw = .5*( hleft + hright )
     if(verbose) cat("Using calculated bandwidth: ",sprintf("%.3f",bw),"\n")
-  }
-  
+  } 
+  if( sum(runvar>cutpoint-bw & runvar<cutpoint) ==0 |
+    sum(runvar<cutpoint+bw & runvar>=cutpoint) ==0)
+    stop("Insufficient data within the bandwidth.")
   if(plot){
     #estimate density to either side of the cutpoint using a triangular kernel
-    d.l<-data.frame(cellmp=cellmp[cellmp<cutpoint],cellval=cellval[cellmp<cutpoint],est=NA,lwr=NA,upr=NA)
-    pmin<-cutpoint-rsd
-    pmax<-cutpoint+rsd
+    d.l<-data.frame(cellmp=cellmp[cellmp<cutpoint],cellval=cellval[cellmp<cutpoint],dist=NA,est=NA,lwr=NA,upr=NA)
+    pmin<-cutpoint-2*rsd
+    pmax<-cutpoint+2*rsd
     for(i in 1:nrow(d.l)) {
-      dist<-d.l$cellmp-d.l[i,"cellmp"]
-      w<-1-abs(dist/bw)
-      w <- ifelse(w>0, w, 0)
-      w<-w/sum(w)
-      newd<-data.frame(cellmp=d.l[i,"cellmp"])
-      pred<-predict(lm(cellval~cellmp,weights=w,data=d.l),interval="confidence",newdata=newd)
+      d.l$dist<-d.l$cellmp-d.l[i,"cellmp"]
+      w<-kernelwts(d.l$dist,0,bw,kernel="triangular")
+      newd<-data.frame(dist=0)
+      pred<-predict(lm(cellval~dist,weights=w,data=d.l),interval="confidence",newdata=newd)
       d.l$est[i]<-pred[1]
       d.l$lwr[i]<-pred[2]
       d.l$upr[i]<-pred[3]
     }
-    d.r<-data.frame(cellmp=cellmp[cellmp>=cutpoint],cellval=cellval[cellmp>=cutpoint],est=NA,lwr=NA,upr=NA)
+    d.r<-data.frame(cellmp=cellmp[cellmp>=cutpoint],cellval=cellval[cellmp>=cutpoint],dist=NA,est=NA,lwr=NA,upr=NA)
     for(i in 1:nrow(d.r)) {
-      dist<-d.r$cellmp-d.r[i,"cellmp"]
-      w<-1-abs(dist/bw)
-      w <- ifelse(w>0, w, 0)
-      w<-w/sum(w)
-      newd<-data.frame(cellmp=d.r[i,"cellmp"])
-      pred<-predict(lm(cellval~cellmp,weights=w,data=d.r),interval="confidence",newdata=newd)
+      d.r$dist<-d.r$cellmp-d.r[i,"cellmp"]
+      w<-kernelwts(d.r$dist,0,bw,kernel="triangular")
+      newd<-data.frame(dist=0)
+      pred<-predict(lm(cellval~dist,weights=w,data=d.r),interval="confidence",newdata=newd)
       d.r$est[i]<-pred[1]
       d.r$lwr[i]<-pred[2]
       d.r$upr[i]<-pred[3]
     }
     #plot to the left
+    #return(list(d.l,d.r))
     plot(d.l$cellmp,d.l$est,
        lty=1,lwd=2,col="black",type="l",
        xlim=c(pmin,pmax),
@@ -170,7 +171,8 @@ DCdensity <- function(runvar,cutpoint,bin=NULL,bw=NULL,verbose=FALSE,plot=TRUE,e
     #plot the histogram as points
     points(cellmp,cellval,type="p",pch=20)
   }
-  
+  cmp<-cellmp
+  cval<-cellval
   padzeros <- ceiling(bw/bin)
   jp <- j + 2*padzeros
   if(padzeros>=1) {
@@ -189,25 +191,13 @@ DCdensity <- function(runvar,cutpoint,bin=NULL,bw=NULL,verbose=FALSE,plot=TRUE,e
   w <- 1-abs(dist/bw)
   w <- ifelse(w>0, w*(cmp<cutpoint), 0)
   w <- (w/sum(w))*jp
-  xmean <- weighted.mean(dist,w)
-  ymean <- weighted.mean(cval,w)
-  XX <- t( dist - xmean ) %*% diag(w) %*% ( dist - xmean )
-  Xy <- t( dist - xmean ) %*% diag(w) %*% ( cval - ymean )
-  beta <- solve(XX)%*%Xy
-  beta <- c(beta, ymean - xmean%*%beta)
-  fhatl <- beta[2]
+  fhatl <- predict(lm(cval~dist,weights=w),newdata=data.frame(dist=0))[[1]]
   
   #Estimate to the right
   w <- 1-abs(dist/bw)
   w <- ifelse(w>0, w*(cmp>=cutpoint), 0)
   w <- (w/sum(w))*jp
-  xmean <- weighted.mean(dist,w)
-  ymean <- weighted.mean(cval,w)
-  XX <- t( dist - xmean ) %*% diag(w) %*% ( dist - xmean )
-  Xy <- t( dist - xmean ) %*% diag(w) %*% ( cval - ymean )
-  beta<-solve(XX)%*%Xy
-  beta<- c(beta,ymean-xmean%*%beta)
-  fhatr<-beta[2]
+  fhatr<-predict(lm(cval~dist,weights=w),newdata=data.frame(dist=0))[[1]]
   
   #Calculate and display dicontinuity estimate
   thetahat <- log(fhatr) - log(fhatl)

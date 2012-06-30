@@ -43,3 +43,8 @@ Version: 0.42
 ----- 
 Changes: Submission issue. 
 --------------- 
+--------------- 
+Version: 0.50 
+----- 
+Changes: Added better error messages. Fixed bug in plot.RDD. Other minor code changes. 
+--------------- 
