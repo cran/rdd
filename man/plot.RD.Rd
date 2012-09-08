@@ -1,0 +1,42 @@
+\name{plot.RD}
+\alias{plot.RD}
+\title{Plot of the Regression Discontinuity}
+\usage{
+  \method{plot}{RD} (x, gran = 400, bins = 100, which = 1,
+    range, ...)
+}
+\arguments{
+  \item{x}{\code{rd} object, typically the result of
+  \code{\link{RDestimate}}}
+
+  \item{gran}{the granularity of the plot. This specifies
+  the number of points to either side of the cutpoint for
+  which the estimate is calculated.}
+
+  \item{bins}{if the dependent variable is binary, include
+  the number of bins within which to average}
+
+  \item{which}{identifies which of the available plots to
+  display. For a sharp design, the only possibility is
+  \code{1}, the plot of the running variable against the
+  outcome variable. For a fuzzy design, an additional plot,
+  \code{2}, may also be displayed, showing the relationship
+  between the running variable and the treatment variable.
+  Both plots may be displayed with \code{which=c(1,2)}.}
+
+  \item{range}{the range of values of the running variable
+  for which to plot. This should be a vector of length two
+  of the format \code{c(min,max)}. To plot from the minimum
+  to the maximum value, simply enter
+  \code{c("min","max")}.}
+
+  \item{...}{unused}
+}
+\description{
+  Plot the relationship between the running variable and
+  the outcome
+}
+\author{
+  Drew Dimmery <\email{drewd@nyu.edu}>
+}
+
