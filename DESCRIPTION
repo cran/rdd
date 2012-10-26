@@ -1,7 +1,7 @@
 Package: rdd
 Type: Package
 Title: Regression Discontinuity Estimation
-Version: 0.42
+Version: 0.50
 Date: 2012-06-30
 Author: Drew Dimmery
 Maintainer: Drew Dimmery <drewd@nyu.edu>
@@ -16,4 +16,4 @@ Depends: R (>= 2.15.0), sandwich, lmtest, AER
 Collate: 'rdd-package.R' 'DCdensity.R' 'IKbandwidth.R' 'kernelwts.R'
         'RDestimate.R' 'plot.RD.R' 'summary.RD.R'
 Repository: CRAN
-Date/Publication: 2012-09-08 05:48:19
+Date/Publication: 2012-10-26 13:45:43
