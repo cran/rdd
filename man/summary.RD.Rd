@@ -2,13 +2,24 @@
 \alias{summary.RD}
 \title{Summarizing Regression Discontinuity Designs}
 \usage{
-  \method{summary}{RD} (object, ...)
+  \method{summary}{RD} (object,
+    digits = max(3, getOption("digits") - 3), ...)
 }
 \arguments{
   \item{object}{an object of class \code{"RD"}, usually a
   result of a call to \code{\link{RDestimate}}}
 
+  \item{digits}{number of digits to display}
+
   \item{...}{unused}
+}
+\value{
+  \code{summary.RD} returns an object of \link{class}
+  "\code{summary.RD}" which has the following components:
+  \item{coefficients}{A matrix containing bandwidths,
+  number of observations, estimates, SEs, z-values and
+  p-values for each estimated bandwidth.} \item{fstat}{A
+  global F-test of the corresponding model}
 }
 \description{
   \code{summary} method for class \code{"RD"}

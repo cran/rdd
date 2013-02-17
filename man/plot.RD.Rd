@@ -36,6 +36,11 @@
   Plot the relationship between the running variable and
   the outcome
 }
+\details{
+  It is important to note that this function will only plot
+  the discontinuity using the bandwidth which is first in
+  the vector of bandwidths passed to \code{RDestimate}
+}
 \author{
   Drew Dimmery <\email{drewd@nyu.edu}>
 }

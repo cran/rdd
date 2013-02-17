@@ -1,0 +1,23 @@
+\name{print.RD}
+\alias{print.RD}
+\title{Print the Regression Discontinuity}
+\usage{
+  \method{print}{RD} (x,
+    digits = max(3, getOption("digits") - 3), ...)
+}
+\arguments{
+  \item{x}{\code{rd} object, typically the result of
+  \code{\link{RDestimate}}}
+
+  \item{digits}{number of digits to print}
+
+  \item{...}{unused}
+}
+\description{
+  Print a very basic summary of the regression
+  discontinuity
+}
+\author{
+  Drew Dimmery <\email{drewd@nyu.edu}>
+}
+
