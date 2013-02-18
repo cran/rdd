@@ -24,8 +24,14 @@
   \item{cutpoint}{the cutpoint. If omitted, it is assumed
   to be 0.}
 
-  \item{bw}{the bandwidth. If omitted, it is calculated
-  using the Imbens-Kalyanaraman method.}
+  \item{bw}{a numeric vector specifying the bandwidths at
+  which to estimate the RD. If omitted, the bandwidth is
+  calculated using the Imbens-Kalyanaraman method, and then
+  estimated with that bandwidth, half that bandwidth, and
+  twice that bandwidth. If only a single value is passed
+  into the function, the RD will similarly be estimated at
+  that bandwidth, half that bandwidth, and twice that
+  bandwidth.}
 
   \item{kernel}{a string specifying the kernel to be used
   in the local linear fitting. \code{"triangular"} kernel
@@ -67,20 +73,29 @@
   estimated regression discontinuity. The object of class
   \code{RD} is a list containing the following components:
   \item{type}{a string denoting either \code{"sharp"} or
-  \code{"fuzzy"} RDD.} \item{est}{the estimate of the
-  discontinuity in the outcome under a sharp design, or the
-  Wald estimator in the fuzzy design} \item{se}{the
-  standard error} \item{z}{the z statistic} \item{p}{the p
-  value} \item{ci}{the vector of the 95% confidence
-  interval, \code{c("CI Lower Bound","CI Upper Bound")}}
-  \item{bw}{the bandwidth} \item{call}{the matched call}
+  \code{"fuzzy"} RDD.} \item{est}{numeric vector of the
+  estimate of the discontinuity in the outcome under a
+  sharp design, or the Wald estimator in the fuzzy design
+  for each corresponding bandwidth} \item{se}{numeric
+  vector of the standard error for each corresponding
+  bandwidth} \item{z}{numeric vector of the z statistic for
+  each corresponding bandwidth} \item{p}{numeric vector of
+  the p value for each corresponding bandwidth}
+  \item{ci}{the matrix of the 95% confidence interval,
+  \code{c("CI Lower Bound","CI Upper Bound")} for each
+  corresponding bandwidth} \item{bw}{numeric vector of each
+  bandwidth used in estimation} \item{obs}{vector of the
+  number of observations within the corresponding
+  bandwidth} \item{call}{the matched call}
   \item{na.action}{the observations removed from fitting
   due to missingness} \item{model}{(if requested) For a
-  sharp design, the \code{lm} object is returned. For a
-  fuzzy design, a list is returned with two elements:
-  \code{firststage}, the first stage \code{lm} object, and
-  \code{iv}, the \code{ivreg} object.} \item{frame}{(if
-  requested) Returns the model frame used in fitting.}
+  sharp design, a list of the \code{lm} objects is
+  returned. For a fuzzy design, a list of lists is
+  returned, each with two elements: \code{firststage}, the
+  first stage \code{lm} object, and \code{iv}, the
+  \code{ivreg} object. A model is returned for each
+  corresponding bandwidth.} \item{frame}{(if requested)
+  Returns the model frame used in fitting.}
 }
 \description{
   \code{RDestimate} supports both sharp and fuzzy RDD
