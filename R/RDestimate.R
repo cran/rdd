@@ -170,6 +170,7 @@ RDestimate<-function(formula, data, subset=NULL, cutpoint=NULL, bw=NULL, kernel=
     ibw<-which(bw==bws)
   #Subset to within the bandwidth, except for when using gaussian weighting
   sub<-X>=(cutpoint-bw) & X<=(cutpoint+bw)
+  X<-X-cutpoint
   
   if(kernel=="gaussian") 
     sub<-TRUE
@@ -207,7 +208,7 @@ RDestimate<-function(formula, data, subset=NULL, cutpoint=NULL, bw=NULL, kernel=
 
     if(model) o$model[[ibw]]=mod
     if(frame) o$frame[[ibw]]=dat.out
-    return(o)
+
   } else {
     if(verbose){
       cat("Running Fuzzy RD\n")
