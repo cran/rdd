@@ -15,7 +15,9 @@
 #' the treatment variable. Both plots may be displayed with \code{which=c(1,2)}.
 #' @param range the range of values of the running variable for which to plot. This
 #' should be a vector of length two of the format \code{c(min,max)}. To plot
-#' from the minimum to the maximum value, simply enter \code{c("min","max")}.
+#' from the minimum to the maximum value, simply enter \code{c("min","max")}. The default 
+#' is a window 20 times wider than the first listed bandwidth from the \code{rd} object, 
+#' truncated by the min/max values of the running variable from the data.
 #' @param ... unused
 #' @details It is important to note that this function will only plot the discontinuity
 #' using the bandwidth which is first in the vector of bandwidths passed to \code{RDestimate}
@@ -26,31 +28,34 @@
 
 plot.RD <- function(x,gran=400,bins=100,which=1,range,...) {
   frm<-FALSE
-  if("frame" %in% names(x$call)) frm<-x$call$frame
+  if("frame" %in% names(x$call)) frm<-eval.parent(x$call$frame)
   if(!frm){
     x$call$frame<-TRUE
     x$call$verbose<-FALSE
     x<-eval.parent(x$call)
   }
-  d<-x$frame
+  d<-as.data.frame(x$frame)
 
   if(length(x$na.action)>0)
     d<-d[-x$na.action,]
   
   if("kernel" %in% names(x$call)) 
-    kern<-x$call$kernel
+    kern<-eval.parent(x$call$kernel)
   else 
     kern<-"triangular"
   
   if("cutpoint" %in% names(x$call)) 
-    cut<-x$call$cutpoint
+    cut<-eval.parent(x$call$cutpoint)
   else
     cut<-0
   
   bw<-x$bw[1]
   
-  if(missing(range))
+  if(missing(range)) {
      range<-c(cut-10*bw,cut+10*bw)
+		 if(range[1]<min(d$X)) range[1]<-min(d$X)
+		 if(range[2]>max(d$X)) range[2]<-max(d$X)
+  }
      
   if(range[1]=="min")
     range[1]<-min(d$X)

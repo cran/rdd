@@ -1,11 +1,11 @@
-facd3ab8463a83f09192b0de81f6eb5f *DESCRIPTION
-69690e0a87eb665ec0276c47a1a9f7e7 *NAMESPACE
-10f8279562cbdb3934e94cf74c80e419 *NEWS
+813e00999dc1ff27549a2585fac0af77 *DESCRIPTION
+9da7e3012f2e77795086c4cecec40fac *NAMESPACE
+065df8c203730fd742a57c46bdc68a9e *NEWS
 704c37a46938cb1be5ae808fc26a7a85 *R/DCdensity.R
-040730fff84ae85a1b9e67cf45a473ba *R/IKbandwidth.R
-e1a71300ed529864a8ea052b449b7555 *R/RDestimate.R
+b88713570e803456aabca39ec2fa6d76 *R/IKbandwidth.R
+e6fa549d663a968cdf83f4ac87162e4c *R/RDestimate.R
 752bd674c714fa86954ad469112d4d5e *R/kernelwts.R
-ad0e300597301aa66776ffa8dddb3565 *R/plot.RD.R
+53bfe7a0b91c37241e3d5bf44afce55d *R/plot.RD.R
 060e21f5cc87ea2b0209412f3f9c308a *R/print.RD.R
 28253c10f5b60df7d23012399fc1bee1 *R/rdd-package.R
 08e708a13082cb3fa98b224ea1dd5540 *R/summary.RD.R
@@ -13,7 +13,7 @@ ad0e300597301aa66776ffa8dddb3565 *R/plot.RD.R
 ff1b59d4bb492cc6a98a6cd05bb7b70c *man/IKbandwidth.Rd
 3cc11bb0d6c947cf3860245001ce3a68 *man/RDestimate.Rd
 79d55dbe39e0930b6add5b101f35f698 *man/kernelwts.Rd
-635ba2a8ad4c8d8cb5cc918ce7a1974a *man/plot.RD.Rd
+738dc343e79ae242d820efb19c296dda *man/plot.RD.Rd
 769624bf919ffc7dfec98c825e6317d8 *man/print.RD.Rd
 1e1d378677127c4d73ad21c9aa71c944 *man/rdd-package.Rd
 d34fbcfe5b53d71014026ef19afc5ed6 *man/summary.RD.Rd
