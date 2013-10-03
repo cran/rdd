@@ -1,3 +1,6 @@
+Version: 0.55: 
+ * Added dependence on Formula.
+
 Version: 0.54: 
  * Removed LICENSE to comport with CRAN policy.
  * Renamed VERSION to NEWS.

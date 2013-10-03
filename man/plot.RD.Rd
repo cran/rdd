@@ -27,8 +27,11 @@
   \item{range}{the range of values of the running variable
   for which to plot. This should be a vector of length two
   of the format \code{c(min,max)}. To plot from the minimum
-  to the maximum value, simply enter
-  \code{c("min","max")}.}
+  to the maximum value, simply enter \code{c("min","max")}.
+  The default is a window 20 times wider than the first
+  listed bandwidth from the \code{rd} object, truncated by
+  the min/max values of the running variable from the
+  data.}
 
   \item{...}{unused}
 }

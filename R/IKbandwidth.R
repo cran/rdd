@@ -43,8 +43,8 @@ IKbandwidth <-function (X,Y,cutpoint=NULL,verbose=FALSE,kernel="triangular") {
   Ybarr<-mean(Y[right])
   fbarx<-(Nl+Nr)/(2*Nx*h1)
   varY<-(sum((Y[left]-Ybarl)^2)+sum((Y[right]-Ybarr)^2))/(Nl+Nr)
-  medXl<-median(X[left])
-  medXr<-median(X[right])
+  medXl<-median(X[X<=cutpoint])
+  medXr<-median(X[X>cutpoint])
   Nl<-sum(X<cutpoint)
   Nr<-sum(X>=cutpoint)
   cX<-X-cutpoint
@@ -74,7 +74,7 @@ IKbandwidth <-function (X,Y,cutpoint=NULL,verbose=FALSE,kernel="triangular") {
   if(kernel=="triangular") {
     ck<-3.43754
   } else if (kernel=="rectangular") {
-    ck<-2.70192
+    ck<-5.40384
   } else if(kernel=="epanechnikov") {
     ck<-3.1999
   } else if(kernel=="quartic" | kernel=="biweight") {

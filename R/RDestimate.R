@@ -61,7 +61,7 @@
 #' @references Imbens, Guido and Thomas Lemieux. (2010) "Regression discontinuity designs: A guide to practice," \emph{Journal of Econometrics}. 142(2): 615-635. \url{http://dx.doi.org/10.1016/j.jeconom.2007.05.001}
 #' @references Lee, David and David Card. (2010) "Regression discontinuity inference with specification error," \emph{Journal of Econometrics}. 142(2): 655-674. \url{http://dx.doi.org/10.1016/j.jeconom.2007.05.003}
 #' @references Angrist, Joshua and Jorn-Steffen Pischke. (2009) \emph{Mostly Harmless Econometrics}. Princeton: Princeton University Press.
-#' @import AER sandwich lmtest
+#' @import AER Formula sandwich lmtest
 #' @include IKbandwidth.R 
 #' @include kernelwts.R
 #' @export
@@ -83,8 +83,10 @@ RDestimate<-function(formula, data, subset=NULL, cutpoint=NULL, bw=NULL, kernel=
   if(!is.null(subset)){
     X<-X[subset]
     Y<-Y[subset]
+    if(!is.null(cluster)) cluster<-cluster[subset]
   }
   if (!is.null(cluster)) {
+    cluster<-as.character(cluster)
     robust.se <- function(model, cluster){
       M <- length(unique(cluster))
       N <- length(cluster)           
@@ -93,7 +95,7 @@ RDestimate<-function(formula, data, subset=NULL, cutpoint=NULL, bw=NULL, kernel=
       uj  <- apply(estfun(model), 2, function(x) tapply(x, cluster, sum));
       rcse.cov <- dfc * sandwich(model, meat. = crossprod(uj)/N)
       rcse.se <- coeftest(model, rcse.cov)
-      return(list(rcse.cov, rcse.se))
+      return(rcse.se[2,2])
     }
   }
   na.ok<-complete.cases(X)&complete.cases(Y)
@@ -109,14 +111,14 @@ RDestimate<-function(formula, data, subset=NULL, cutpoint=NULL, bw=NULL, kernel=
   }
   covs<-NULL
   if(length(formula)[2]>1){
-    covs<-model.frame(formula,rhs=2,lhs=0,data=data)
+    covs<-model.frame(formula,rhs=2,lhs=0,data=data,na.action=na.pass)
     if(!is.null(subset)) covs<-subset(covs,subset)
     na.ok<-na.ok&complete.cases(covs)
     covs<-subset(covs,na.ok)
   }
   X<-X[na.ok]
   Y<-Y[na.ok]
-  if(type=="fuzzy") Z<-Z[na.ok]
+  if(type=="fuzzy") Z<-as.double(Z[na.ok])
   
   if(is.null(cutpoint)) {
     cutpoint<-0
@@ -207,7 +209,7 @@ RDestimate<-function(formula, data, subset=NULL, cutpoint=NULL, bw=NULL, kernel=
     if (is.null(cluster)) {
       o$se[ibw]<-coeftest(mod,vcovHC(mod,type=se.type))[2,2]
     } else {
-      o$se[ibw]<-robust.se(mod,cluster)[[2]][2,2]
+      o$se[ibw]<-robust.se(mod,cluster[na.ok][w>0])
     }
     o$z[ibw]<-o$est[ibw]/o$se[ibw]
     o$p[ibw]<-2*pnorm(abs(o$z[ibw]),lower.tail=F)
@@ -250,7 +252,7 @@ RDestimate<-function(formula, data, subset=NULL, cutpoint=NULL, bw=NULL, kernel=
     if (is.null(cluster)) {
       o$se[ibw]<-coeftest(mod,vcovHC(mod,type=se.type))[2,2]
     } else {
-      o$se[ibw]<-robust.se(mod,cluster)[[2]][2,2]
+      o$se[ibw]<-robust.se(mod,cluster[na.ok][w>0])
     }
     o$z[ibw]<-o$est[ibw]/o$se[ibw]
     o$p[ibw]<-2*pnorm(abs(o$z[ibw]),lower.tail=F)
