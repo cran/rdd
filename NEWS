@@ -1,3 +1,6 @@
+Version: 0.56: 
+ * Fixed bug in plot.RD.
+
 Version: 0.55: 
  * Added dependence on Formula.
 
