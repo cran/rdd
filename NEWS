@@ -1,3 +1,6 @@
+Version: 0.57: 
+ * Fixed covariate handling.
+
 Version: 0.56: 
  * Fixed bug in plot.RD.
 
